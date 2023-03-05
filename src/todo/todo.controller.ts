@@ -1,4 +1,4 @@
-import {Controller, Get, Body, UsePipes, Post, Param, Patch} from "@nestjs/common";
+import {Controller, Get, Body, UsePipes, Post, Param, Patch, Delete} from "@nestjs/common";
 import {CustomResponseBodyInterface} from "../interfaces/custom-response-body.interface";
 import {DatabaseService} from "../database/database.service";
 import {TodoDataSchema, TodoDto} from "./dtos/todo.dto";
@@ -101,6 +101,17 @@ export class TodoController {
 
         return {
             message: "Todo unchecked successfully."
+        };
+    }
+
+    // Delete
+
+    @Delete("delete/:id")
+    async delete(@Param("id") todoId: string): Promise<CustomResponseBodyInterface> {
+        await this.databaseService.deleteTodo(todoId);
+
+        return {
+            message: "Todo removed successfully"
         };
     }
 }

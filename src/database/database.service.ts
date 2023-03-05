@@ -81,7 +81,11 @@ export class DatabaseService {
     async redescribeTodo(todoId: string, newDescription: string): Promise<void> {
         let todo: TodoEntity = await this.getTodoById(todoId);
 
-        if (todo.description !== newDescription) todo.description = newDescription;
+        if (todo.description === newDescription) throw new ConflictException({
+            message: "Write a new description for this todo."
+        });
+
+        todo.description = newDescription;
 
         await this.dataSource.manager.save(todo);
     }
@@ -100,5 +104,13 @@ export class DatabaseService {
         todo.checked = false;
 
         await  this.dataSource.manager.save(todo);
+    }
+
+    // Delete
+
+    async deleteTodo(todoId: string): Promise<void> {
+        let todo: TodoEntity = await this.getTodoById(todoId);
+
+        await this.dataSource.manager.remove(todo);
     }
 }
