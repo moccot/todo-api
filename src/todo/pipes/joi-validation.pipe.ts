@@ -6,13 +6,15 @@ export class JoiValidationPipe implements PipeTransform {
     constructor(private readonly objectSchema: ObjectSchema) {}
 
     transform(value: any, metadata: ArgumentMetadata): any {
-        let { error } = this.objectSchema.validate(value);
+        if (metadata.type === "body") {
+            let {error} = this.objectSchema.validate(value);
 
-        if (error) {
-            throw new NotAcceptableException({
-                messages: "Invalid description.",
-                data: error
-            });
+            if (error) {
+                throw new NotAcceptableException({
+                    messages: "Invalid description.",
+                    data: error
+                });
+            }
         }
 
         return value;

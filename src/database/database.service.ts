@@ -8,6 +8,8 @@ import {dataSource} from "./datasource";
 export class DatabaseService {
     private readonly dataSource: DataSource = dataSource;
 
+    // Create
+
     async createTodo(todoDto: TodoDto): Promise<TodoEntity> {
         let newTodo: TodoEntity;
 
@@ -35,6 +37,8 @@ export class DatabaseService {
 
         return newTodo;
     }
+
+    // Read
 
     async getAllTodos(): Promise<TodoEntity[]> {
         return await this.dataSource.manager.find(TodoEntity);
@@ -70,5 +74,31 @@ export class DatabaseService {
 
     async getAllUncheckedTodos(): Promise<TodoEntity[]> {
         return await this.getTodosBy({checked: false});
+    }
+
+    // Update
+
+    async redescribeTodo(todoId: string, newDescription: string): Promise<void> {
+        let todo: TodoEntity = await this.getTodoById(todoId);
+
+        if (todo.description !== newDescription) todo.description = newDescription;
+
+        await this.dataSource.manager.save(todo);
+    }
+
+    async checkTodo(todoId: string): Promise<void> {
+        let todo: TodoEntity = await this.getTodoById(todoId);
+
+        todo.checked = true;
+
+        await this.dataSource.manager.save(todo);
+    }
+
+    async uncheckTodo(todoId: string): Promise<void> {
+        let todo: TodoEntity = await this.getTodoById(todoId);
+
+        todo.checked = false;
+
+        await  this.dataSource.manager.save(todo);
     }
 }

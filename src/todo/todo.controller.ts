@@ -1,4 +1,4 @@
-import {Controller, Get, Body, UsePipes, Post, Param} from "@nestjs/common";
+import {Controller, Get, Body, UsePipes, Post, Param, Patch} from "@nestjs/common";
 import {CustomResponseBodyInterface} from "../interfaces/custom-response-body.interface";
 import {DatabaseService} from "../database/database.service";
 import {TodoDataSchema, TodoDto} from "./dtos/todo.dto";
@@ -8,6 +8,8 @@ import {TodoEntity} from "../database/entities/todo.entity";
 @Controller("todo")
 export class TodoController {
     constructor(private readonly databaseService: DatabaseService) {}
+
+    // Create
 
     @Post("add")
     @UsePipes(new JoiValidationPipe(TodoDataSchema))
@@ -19,6 +21,8 @@ export class TodoController {
             data: newTodo
         };
     }
+
+    // Read
 
     @Get()
     async getAll(): Promise<CustomResponseBodyInterface> {
@@ -67,6 +71,36 @@ export class TodoController {
         return {
             message: "Listing all unchecked todos.",
             data: todos
+        };
+    }
+
+    // Update
+
+    @Patch("redescribe/:id")
+    @UsePipes(new JoiValidationPipe(TodoDataSchema))
+    async redescribe(@Param("id") todoId: string, @Body() todoDto: TodoDto): Promise<CustomResponseBodyInterface> {
+        await this.databaseService.redescribeTodo(todoId, todoDto.description);
+
+        return {
+            message: "Todo description updated successfully."
+        };
+    }
+
+    @Patch("check/:id")
+    async check(@Param("id") todoId: string): Promise<CustomResponseBodyInterface> {
+        await this.databaseService.checkTodo(todoId);
+
+        return {
+            message: "Todo checked successfully."
+        };
+    }
+
+    @Patch("uncheck/:id")
+    async uncheck(@Param("id") todoId: string): Promise<CustomResponseBodyInterface> {
+        await this.databaseService.uncheckTodo(todoId);
+
+        return {
+            message: "Todo unchecked successfully."
         };
     }
 }
