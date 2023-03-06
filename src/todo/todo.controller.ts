@@ -1,20 +1,20 @@
 import {Controller, Get, Body, UsePipes, Post, Param, Patch, Delete} from "@nestjs/common";
 import {CustomResponseBodyInterface} from "../interfaces/custom-response-body.interface";
-import {DatabaseService} from "../database/database.service";
+import {TodoService} from "../database/todo.service";
 import {TodoDataSchema, TodoDto} from "./dtos/todo.dto";
 import {JoiValidationPipe} from "./pipes/joi-validation.pipe";
 import {TodoEntity} from "../database/entities/todo.entity";
 
 @Controller("todo")
 export class TodoController {
-    constructor(private readonly databaseService: DatabaseService) {}
+    constructor(private readonly todoService: TodoService) {}
 
     // Create
 
     @Post("add")
     @UsePipes(new JoiValidationPipe(TodoDataSchema))
-    async create(@Body() todoDto: TodoDto): Promise<CustomResponseBodyInterface> {
-        let newTodo: TodoEntity = await this.databaseService.createTodo(todoDto);
+    async create(@Body() data: TodoDto): Promise<CustomResponseBodyInterface> {
+        let newTodo: TodoEntity = await this.todoService.create(data);
 
         return {
             message: "Todo added successfully.",
@@ -26,7 +26,7 @@ export class TodoController {
 
     @Get()
     async getAll(): Promise<CustomResponseBodyInterface> {
-        let todos: TodoEntity[] = await this.databaseService.getAllTodos();
+        let todos: TodoEntity[] = await this.todoService.getAll();
 
         return {
             message: "Listing all todos.",
@@ -35,28 +35,28 @@ export class TodoController {
     }
 
     @Get("id/:id")
-    async getById(@Param("id") todoId: string): Promise<CustomResponseBodyInterface> {
-        let todo: TodoEntity = await this.databaseService.getTodoById(todoId);
+    async getById(@Param("id") id: string): Promise<CustomResponseBodyInterface> {
+        let todo: TodoEntity = await this.todoService.getById(id);
 
         return {
-            message: `Listing todo of id: ${todoId}.`,
+            message: `Listing todo of id: ${id}.`,
             data: todo
         };
     }
 
     @Get("description/:description")
-    async  getByDescription(@Param("description") todoDescription: string): Promise<CustomResponseBodyInterface> {
-        let todo: TodoEntity = await  this.databaseService.getTodoByDescription(todoDescription);
+    async  getByDescription(@Param("description") description: string): Promise<CustomResponseBodyInterface> {
+        let todo: TodoEntity = await  this.todoService.getByDescription(description);
 
         return {
-            message: `Listing todo of description: ${todoDescription}.`,
+            message: `Listing todo of description: ${description}.`,
             data: todo
         };
     }
 
     @Get("checked")
     async getAllChecked(): Promise<CustomResponseBodyInterface> {
-        let todos: TodoEntity[] = await this.databaseService.getAllCheckedTodos();
+        let todos: TodoEntity[] = await this.todoService.getAllChecked();
 
         return {
             message: "Listing all checked todos.",
@@ -66,7 +66,7 @@ export class TodoController {
 
     @Get("unchecked")
     async getAllUnchecked(): Promise<CustomResponseBodyInterface> {
-        let todos: TodoEntity[] = await this.databaseService.getAllUncheckedTodos();
+        let todos: TodoEntity[] = await this.todoService.getAllUnchecked();
 
         return {
             message: "Listing all unchecked todos.",
@@ -78,8 +78,8 @@ export class TodoController {
 
     @Patch("redescribe/:id")
     @UsePipes(new JoiValidationPipe(TodoDataSchema))
-    async redescribe(@Param("id") todoId: string, @Body() todoDto: TodoDto): Promise<CustomResponseBodyInterface> {
-        await this.databaseService.redescribeTodo(todoId, todoDto.description);
+    async redescribe(@Param("id") id: string, @Body() data: TodoDto): Promise<CustomResponseBodyInterface> {
+        await this.todoService.redescribeById(id, data.description);
 
         return {
             message: "Todo description updated successfully."
@@ -87,8 +87,8 @@ export class TodoController {
     }
 
     @Patch("check/:id")
-    async check(@Param("id") todoId: string): Promise<CustomResponseBodyInterface> {
-        await this.databaseService.checkTodo(todoId);
+    async check(@Param("id") id: string): Promise<CustomResponseBodyInterface> {
+        await this.todoService.checkById(id);
 
         return {
             message: "Todo checked successfully."
@@ -96,8 +96,8 @@ export class TodoController {
     }
 
     @Patch("uncheck/:id")
-    async uncheck(@Param("id") todoId: string): Promise<CustomResponseBodyInterface> {
-        await this.databaseService.uncheckTodo(todoId);
+    async uncheck(@Param("id") id: string): Promise<CustomResponseBodyInterface> {
+        await this.todoService.uncheckById(id);
 
         return {
             message: "Todo unchecked successfully."
@@ -107,8 +107,8 @@ export class TodoController {
     // Delete
 
     @Delete("delete/:id")
-    async delete(@Param("id") todoId: string): Promise<CustomResponseBodyInterface> {
-        await this.databaseService.deleteTodo(todoId);
+    async delete(@Param("id") id: string): Promise<CustomResponseBodyInterface> {
+        await this.todoService.deleteById(id);
 
         return {
             message: "Todo removed successfully"

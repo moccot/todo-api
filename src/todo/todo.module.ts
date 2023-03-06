@@ -1,9 +1,9 @@
 import {Module} from "@nestjs/common";
 import {TodoController} from "./todo.controller";
-import {DatabaseService} from "../database/database.service";
+import {TodoService} from "../database/todo.service";
 
 @Module({
     controllers: [TodoController],
-    providers: [DatabaseService]
+    providers: [TodoService]
 })
 export class TodoModule {}
